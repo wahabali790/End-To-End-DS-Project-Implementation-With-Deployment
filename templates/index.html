@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Exam Performance Indicator &mdash; End-to-End ML Project</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #f9f9f7;
+    --surface:     #fcfcfb;
+    --surface-2:   #f3f2ee;
+    --text-1:      #0b0b0b;
+    --text-2:      #52514e;
+    --text-muted:  #898781;
+    --border:      rgba(11,11,11,0.10);
+    --grid:        #e1e0d9;
+    --accent:      #2a78d6;
+    --accent-dark: #184f95;
+    --accent-tint: #cde2fb;
+    --good:        #0ca30c;
+    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px -12px rgba(11,11,11,0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page:        #0d0d0d;
+      --surface:     #1a1a19;
+      --surface-2:   #212120;
+      --text-1:      #ffffff;
+      --text-2:      #c3c2b7;
+      --text-muted:  #898781;
+      --border:      rgba(255,255,255,0.10);
+      --grid:        #2c2c2a;
+      --accent:      #3987e5;
+      --accent-dark: #86b6ef;
+      --accent-tint: #16324f;
+      --good:        #0ca30c;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page);
+    color: var(--text-1);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* Nav */
+  nav.top {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--page) 85%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 13px; font-weight: 800;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    border: 1px solid transparent; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-ghost { background: transparent; color: var(--text-1); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--surface-2); }
+
+  /* Hero */
+  header.hero { padding: 88px 0 56px; text-align: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-tint);
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 20px;
+  }
+  h1.hero-title {
+    font-size: clamp(32px, 5vw, 48px); line-height: 1.12; letter-spacing: -0.02em;
+    margin: 0 0 18px; font-weight: 800;
+  }
+  p.hero-sub {
+    max-width: 620px; margin: 0 auto 32px; color: var(--text-2); font-size: 17px;
+  }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* Stat row */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin: 56px 0 0;
+  }
+  .stat-tile {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 20px; box-shadow: var(--shadow);
+  }
+  .stat-value {
+    font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--text-1);
+  }
+  .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Section */
+  section { padding: 64px 0; }
+  .section-head { text-align: center; max-width: 560px; margin: 0 auto 40px; }
+  .section-head h2 { font-size: 26px; letter-spacing: -0.01em; margin: 0 0 10px; }
+  .section-head p { color: var(--text-2); margin: 0; font-size: 15px; }
+
+  /* Pipeline steps */
+  .pipeline {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    counter-reset: step;
+  }
+  .step {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; position: relative; box-shadow: var(--shadow);
+  }
+  .step-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--accent-tint); color: var(--accent-dark);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+  }
+  .step-num {
+    position: absolute; top: 18px; right: 18px; font-size: 12px; font-weight: 700;
+    color: var(--text-muted);
+  }
+  .step h3 { font-size: 15px; margin: 0 0 6px; }
+  .step p { font-size: 13px; color: var(--text-2); margin: 0; }
+
+  /* Tech stack */
+  .badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--text-2);
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 0; text-align: center;
+    color: var(--text-muted); font-size: 13px;
+  }
+
+  @media (max-width: 760px) {
+    .stats, .pipeline { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .stats, .pipeline { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark">SP</span>
+      <span>Student Performance Indicator</span>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('predict_datapoint') }}">Try the Predictor</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+      End-to-End Machine Learning Project
+    </span>
+    <h1 class="hero-title">Predicting a Student's Math Score<br>From Their Academic Profile</h1>
+    <p class="hero-sub">
+      A production-style regression pipeline &mdash; data ingestion, preprocessing,
+      model selection across seven algorithms, and a live Flask inference API &mdash;
+      trained on demographic and academic features to estimate exam performance.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('predict_datapoint') }}">
+        Launch Predictor
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn btn-ghost" href="#pipeline">View Pipeline</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat-tile">
+        <div class="stat-value">0.88</div>
+        <div class="stat-label">Best model R&sup2; score</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value">7</div>
+        <div class="stat-label">Regressors evaluated via GridSearchCV</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Modular pipeline stages</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="pipeline">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How the pipeline works</h2>
+      <p>Each stage is an isolated, testable component &mdash; from raw CSV to a served prediction.</p>
+    </div>
+    <div class="pipeline">
+      <div class="step">
+        <span class="step-num">01</span>
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
+        </div>
+        <h3>Data Ingestion</h3>
+        <p>Reads the raw dataset, performs a train/test split, and persists versioned CSVs to <code>artifacts/</code>.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+        </div>
+        <h3>Data Transformation</h3>
+        <p>A <code>ColumnTransformer</code> imputes, one-hot encodes categoricals, and scales numerics.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>
+        </div>
+        <h3>Model Training</h3>
+        <p>Tunes and compares Linear, Tree, Ensemble, CatBoost and XGBoost regressors; keeps the best by R&sup2;.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg>
+        </div>
+        <h3>Prediction Serving</h3>
+        <p>A Flask endpoint loads the fitted preprocessor and model to score new student profiles in real time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Built with</h2>
+    </div>
+    <div class="badges">
+      <span class="badge"><span class="dot"></span>Python</span>
+      <span class="badge"><span class="dot"></span>Flask</span>
+      <span class="badge"><span class="dot"></span>scikit-learn</span>
+      <span class="badge"><span class="dot"></span>Pandas</span>
+      <span class="badge"><span class="dot"></span>NumPy</span>
+      <span class="badge"><span class="dot"></span>CatBoost</span>
+      <span class="badge"><span class="dot"></span>XGBoost</span>
+      <span class="badge"><span class="dot"></span>GitHub Actions CI/CD</span>
+      <span class="badge"><span class="dot"></span>Azure</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  End-to-end data science project &mdash; ingestion, transformation, training and deployment in one pipeline.
+</footer>
+
+</body>
+</html>
