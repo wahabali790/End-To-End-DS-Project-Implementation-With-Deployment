@@ -20,12 +20,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Test AWS credentials
+        run: aws sts get-caller-identity
+
       - name: Create deployment package
         run: |
           zip -r deployment.zip . \
-            -x ".git/*" \
-               ".github/*" \
-               "venv/*"
+            -x ".git/*" ".github/*" "venv/*"
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
