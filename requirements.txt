@@ -2,9 +2,9 @@ pandas
 numpy
 seaborn
 matplotlib
-scikit-learn==1.9.0
+scikit-learn
 catboost
-xgboost-cpu==3.4.0
+xgboost-cpu
 Flask
 gunicorn
 dill
