@@ -8,4 +8,5 @@ xgboost-cpu==3.4.0
 Flask
 gunicorn
 dill
+setuptools
 #-e .
